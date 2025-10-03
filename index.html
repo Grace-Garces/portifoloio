@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grace Garces | Portfólio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #a4b6e0;
+            overflow-x: hidden;
+        }
+
+        .font-pixel {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        #intro-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #main-content {
+            display: none;
+            position: relative;
+            z-index: 10;
+        }
+
+        #continue-button {
+            position: absolute;
+            bottom: 5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 101;
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: fade-in 1s forwards;
+            animation-delay: 1s;
+        }
+
+        .pixel-border-container {
+    position: relative;
+    padding: 8px; /* Espaçamento para a borda */
+}
+
+.pixel-border-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Simula uma borda pixelada com box-shadow */
+    box-shadow: 
+        0 0 0 4px #f7b731,  /* Linha central */
+        0 -8px 0 0 #f7b731, /* Pixel superior */
+        0 8px 0 0 #f7b731,  /* Pixel inferior */
+        -8px 0 0 0 #f7b731, /* Pixel esquerdo */
+        8px 0 0 0 #f7b731;  /* Pixel direito */
+    
+    /* Animação de "glitch" sutil */
+    animation: glitch 2.5s infinite step-end;
+}
+
+@keyframes glitch {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+}
+
+        @keyframes run-and-jump {
+            0% { left: -150px; }
+            70% { left: calc(50% - 120px); transform: scale(1) translateY(0); }
+            75% { transform: scale(1.2) translateY(-120px); }
+            80% { left: calc(50% - 120px); }
+            85% { transform: scale(1) translateY(0); }
+            100% { left: calc(50% - 120px); opacity: 0; }
+        }
+        
+        @keyframes fade-in {
+            to { opacity: 1; }
+        }
+
+        .mario-button {
+            background-color: #f7b731;
+            color: #4a2e1a;
+            font-family: 'Press Start 2P', cursive;
+            padding: 1rem 1.5rem;
+            border: 4px solid #4a2e1a;
+            box-shadow: inset -4px -4px 0 0 #a1642a, inset 4px 4px 0 0 #ffdb58;
+            transition: all 0.1s ease-out;
+            display: inline-block;
+        }
+        .mario-button:hover {
+            transform: translateY(2px);
+            box-shadow: inset -2px -2px 0 0 #a1642a, inset 2px 2px 0 0 #ffdb58;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="intro-container">
+        <img src="https://i.gifer.com/origin/c7/c73b508018239a2b53b82798f3fd3822_w200.gif" id="intro-mario" onerror="this.style.display='none'">
+        <button id="continue-button" class="mario-button">Continuar</button>
+    </div>
+
+    <div id="main-content">
+        <header class="p-6 fixed w-full top-0 z-50 backdrop-blur-sm bg-black bg-opacity-20">
+            <nav class="container mx-auto">
+                <ul class="flex justify-center items-center space-x-8">
+                    <li><a href="#sobre" class="font-pixel text-sm text-white hover:text-gray-300 transition-colors duration-200 border-b-2 border-transparent hover:border-white pb-1">Sobre</a></li>
+                    <li><span class="text-white text-2xl">•</span></li>
+                    <li><a href="#pretos" class="font-pixel text-sm text-white hover:text-gray-300 transition-colors duration-200 border-b-2 border-transparent hover:border-white pb-1">Projetos</a></li>
+                    <li><span class="text-white text-2xl">•</span></li>
+                    <li><a href="#contato" class="font-pixel text-sm text-white hover:text-gray-300 transition-colors duration-200 border-b-2 border-transparent hover:border-white pb-1">Contato</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section id="game-section" class="relative h-screen">
+            <div class="game-board">
+                <img src="https://i.gifer.com/origin/c7/c73b508018239a2b53b82798f3fd3822_w200.gif" class="mario" onerror="this.style.display='none'">
+                <img src="https://www.freeiconspng.com/uploads/mario-pipe-png-1.png" class="pipe" onerror="this.style.display='none'">
+            </div>
+        </section>
+
+<section id="sobre" class="relative bg-gray-900 min-h-screen flex items-center">
+    <div class="absolute inset-0 opacity-5">
+        <div class="absolute w-20 h-20 bg-blue-400 rounded-full" style="top: 10%; left: 5%;"></div>
+        <div class="absolute w-16 h-16 bg-blue-400 rounded-full" style="top: 60%; left: 80%;"></div>
+        <div class="absolute w-18 h-18 bg-blue-400 rounded-full" style="top: 30%; right: 10%;"></div>
+    </div>
+    <div class="container mx-auto px-6 relative z-10">
+        <h2 class="text-4xl font-bold mb-12 font-pixel text-yellow-400 text-center">Sobre Mim</h2>
+        
+        <div class="max-w-6xl mx-auto bg-gray-800 bg-opacity-70 p-10 md:p-12 rounded-lg border border-gray-700 flex flex-col md:flex-row items-center gap-10 md:gap-12">
+            
+            <div class="flex-shrink-0">
+                <div class="pixel-border-container">
+                     <img class="w-48 h-48 rounded-full object-cover shadow-lg" src="Mídia (2).jfif" alt="Foto de Grace Garces">
+                </div>
+            </div>
+
+            <div class="text-center md:text-left flex-grow">
+                <p class="text-lg leading-relaxed text-gray-200">
+                    Entre linhas de código e mundos fictícios, eu transito com naturalidade. Escrevo APIs em .NET, monto arquiteturas limpas, brinco com Angular e banco de dados — mas também sei citar referências de sci-fi, discutir qual herói venceria numa batalha impossível ou me perder horas em pixel art e jogos retrô.
+                    <br><br>
+                    Minha curiosidade não cabe em gavetas: tanto pode estar voltada para entender como otimizar um CRUD, quanto para imaginar como seria treinar um modelo de IA num universo cyberpunk.
+                </p>
+
+                <div class="flex justify-center md:justify-start gap-4 my-6">
+                    <a href="https://github.com/seu-usuario" target="_blank" title="GitHub">
+                        <svg class="w-8 h-8 text-gray-400 hover:text-yellow-400 transition-colors" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297 24 5.67 18.627.297 12 .297z"/></svg>
+                    </a>
+                    <a href="https://linkedin.com/in/seu-usuario" target="_blank" title="LinkedIn">
+                        <svg class="w-8 h-8 text-gray-400 hover:text-yellow-400 transition-colors" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>LinkedIn</title><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/></svg>
+                    </a>
+                </div>
+
+                <a href="conheca-me.html" class="mario-button text-sm inline-block mt-4">
+                    Me Conheça Mais
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+        <footer class="bg-gray-900 py-6">
+            <div class="container mx-auto text-center text-gray-400">
+                <p>&copy; 2025 GRACE GARCES. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector("#bgCanvas"),
+            alpha: false
+        });
+        
+        renderer.setClearColor(0x5c94fc, 1);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.set(0, 2, 20);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(5, 10, 7);
+        scene.add(directionalLight);
+
+        let textMesh, subtitleMesh;
+        let clouds = [];
+        let coinBoxes = [];
+        let bushes = [];
+
+        // Criar chão com grama
+        const groundGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x7bc043,
+            roughness: 0.9
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -5;
+        scene.add(ground);
+
+        // Criar textura de terra para a lateral
+        const dirtGeometry = new THREE.PlaneGeometry(100, 3);
+        const dirtMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xc4924a,
+            roughness: 1
+        });
+        const dirt = new THREE.Mesh(dirtGeometry, dirtMaterial);
+        dirt.position.y = -6.5;
+        dirt.position.z = -5;
+        scene.add(dirt);
+
+        // Criar arbustos com frutinhas
+        function createBush() {
+            const bush = new THREE.Group();
+            
+            // Corpo do arbusto
+            const bushGeometry = new THREE.SphereGeometry(1.2, 8, 8);
+            const bushMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x2d8c3c,
+                flatShading: true
+            });
+            const bushBody = new THREE.Mesh(bushGeometry, bushMaterial);
+            bushBody.scale.set(1.5, 1, 1.5);
+            bush.add(bushBody);
+
+            // Frutinha vermelha
+            const berryGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+            const berryMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff0000,
+                emissive: 0x330000
+            });
+            const berry = new THREE.Mesh(berryGeometry, berryMaterial);
+            berry.position.set(0, 0.3, 0.8);
+            bush.add(berry);
+
+            return bush;
+        }
+
+        // Adicionar arbustos em posições variadas
+        const bushPositions = [
+            [-15, -4, -3],
+            [-8, -4, 2],
+            [12, -4, -2],
+            [18, -4, 1],
+            [-20, -4, -1]
+        ];
+
+        bushPositions.forEach(pos => {
+            const bush = createBush();
+            bush.position.set(pos[0], pos[1], pos[2]);
+            bushes.push(bush);
+            scene.add(bush);
+        });
+
+        const fontLoader = new THREE.FontLoader();
+        fontLoader.load("https://threejs.org/examples/fonts/helvetiker_bold.typeface.json", function (font) {
+            // Nome principal
+            const textGeometry = new THREE.TextGeometry("GRACE GARCES", {
+                font: font,
+                size: 2,
+                height: 0.5,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.15,
+                bevelSize: 0.1,
+                bevelSegments: 5
+            });
+            textGeometry.center();
+
+            const textMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                roughness: 0.3,
+                metalness: 0.1
+            });
+            textMesh = new THREE.Mesh(textGeometry, textMaterial);
+            textMesh.position.y = 3;
+            scene.add(textMesh);
+
+            // Subtítulo
+            const subtitleGeometry = new THREE.TextGeometry("Desenvolvedora FullStack .NET", {
+                font: font,
+                size: 0.6,
+                height: 0.2,
+                curveSegments: 8,
+                bevelEnabled: true,
+                bevelThickness: 0.05,
+                bevelSize: 0.02,
+                bevelSegments: 3
+            });
+            subtitleGeometry.center();
+
+            const subtitleMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffeb3b,
+                roughness: 0.4,
+                metalness: 0.2
+            });
+            subtitleMesh = new THREE.Mesh(subtitleGeometry, subtitleMaterial);
+            subtitleMesh.position.y = 1;
+            scene.add(subtitleMesh);
+        });
+
+        // Nuvens menores e mais distribuídas
+        function createCloud() {
+            const cloud = new THREE.Group();
+            const cloudMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1 });
+            
+            const s1 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 12, 12), cloudMaterial);
+            s1.scale.set(1.5, 1, 1);
+            
+            const s2 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 12, 12), cloudMaterial);
+            s2.position.set(0.7, -0.2, 0);
+            s2.scale.set(1, 0.8, 0.8);
+            
+            const s3 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 12, 12), cloudMaterial);
+            s3.position.set(-0.8, -0.2, 0.1);
+            s3.scale.set(1.2, 0.9, 0.9);
+            
+            cloud.add(s1, s2, s3);
+            return cloud;
+        }
+
+        // Posicionar nuvens espalhadas pela cena
+        const cloudPositions = [
+            [-18, 8, -8],
+            [-8, 10, -5],
+            [15, 9, -7],
+            [25, 11, -6],
+            [-25, 7, -9],
+            [5, 12, -10],
+            [-15, 6, -4],
+            [20, 8, -8]
+        ];
+
+        cloudPositions.forEach(pos => {
+            const cloud = createCloud();
+            cloud.position.set(pos[0], pos[1], pos[2]);
+            clouds.push(cloud);
+            scene.add(cloud);
+        });
+
+        // Caixinhas de moedas
+        function createCoinBoxTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const context = canvas.getContext('2d');
+            
+            context.fillStyle = '#f7b731';
+            context.fillRect(0, 0, 256, 256);
+            
+            context.fillStyle = '#a1642a';
+            context.fillRect(0, 0, 256, 16);
+            context.fillRect(0, 240, 256, 16);
+            context.fillRect(0, 0, 16, 256);
+            context.fillRect(240, 0, 16, 256);
+
+            context.fillStyle = '#4a2e1a';
+            context.fillRect(24, 24, 16, 16);
+            context.fillRect(216, 24, 16, 16);
+            context.fillRect(24, 216, 16, 16);
+            context.fillRect(216, 216, 16, 16);
+
+            context.font = 'bold 150px Arial';
+            context.fillStyle = 'white';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText('< >', 128, 140);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            return texture;
+        }
+
+        const coinBoxTexture = createCoinBoxTexture();
+        const coinBoxMaterial = new THREE.MeshStandardMaterial({ map: coinBoxTexture });
+        const coinBoxGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+
+        // Posicionar blocos espalhados pela cena (não ao redor do nome)
+        const blockPositions = [
+            [-20, 1, 3],
+            [-15.8, 0, 2],
+            [-8.6, 0, 2],
+            [8, -1, 1],
+            [13.5, 0.5, -2],
+            [18, 2, -1],
+            [-25, 5, -6],
+            [-14.8, 4, -2],
+            [23, 5, -3],
+            [17.2, 5, -3]
+        ];
+
+        blockPositions.forEach((pos, i) => {
+            const box = new THREE.Mesh(coinBoxGeometry, coinBoxMaterial);
+            box.position.set(pos[0], pos[1], pos[2]);
+            box.userData.initialY = pos[1];
+            box.userData.offset = i * 0.5;
+            coinBoxes.push(box);
+            scene.add(box);
+        });
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            if (textMesh) {
+                textMesh.rotation.y = Math.sin(elapsedTime * 0.3) * 0.05;
+                textMesh.position.y = 3 + Math.sin(elapsedTime * 0.5) * 0.15;
+            }
+
+            if (subtitleMesh) {
+                subtitleMesh.rotation.y = Math.sin(elapsedTime * 0.3) * 0.03;
+            }
+
+            clouds.forEach(cloud => {
+                cloud.position.x += 0.015;
+                if (cloud.position.x > 30) {
+                    cloud.position.x = -30;
+                }
+            });
+            
+            coinBoxes.forEach((box) => {
+                box.rotation.y += 0.008;
+                box.position.y = box.userData.initialY + Math.sin(elapsedTime * 1.5 + box.userData.offset) * 0.3;
+            });
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener("resize", () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        const continueButton = document.getElementById('continue-button');
+        const introContainer = document.getElementById('intro-container');
+        const mainContent = document.getElementById('main-content');
+        const introMario = document.getElementById('intro-mario');
+
+        function startPortfolio() {
+            introContainer.style.transition = 'opacity 1s';
+            introContainer.style.opacity = '0';
+            document.getElementById('bgCanvas').style.zIndex = 1;
+
+            setTimeout(() => {
+                introContainer.style.display = 'none';
+                mainContent.style.display = 'block';
+                startGameLoop(); 
+            }, 1000);
+        }
+
+        continueButton.addEventListener('click', startPortfolio);
+        introMario.addEventListener('animationend', (event) => {
+            if (event.animationName === 'run-and-jump') {
+                startPortfolio();
+            }
+        });
+    </script>
+
+    <script>
+        function startGameLoop() {
+            const mario = document.querySelector('.mario');
+            const pipe = document.querySelector('.pipe');
+            let isGameOver = false;
+
+            const jump = () => {
+                if (isGameOver || mario.classList.contains('jump')) return;
+                mario.classList.add('jump');
+                setTimeout(() => {
+                    mario.classList.remove('jump');
+                }, 500);
+            }
+
+            const loop = setInterval(() => {
+                if (!pipe || !mario) {
+                    clearInterval(loop);
+                    return;
+                }
+
+                const pipePosition = pipe.offsetLeft;
+                const marioPosition = +window.getComputedStyle(mario).bottom.replace('px', '');
+
+                if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80) {
+                    pipe.style.animation = 'none';
+                    pipe.style.left = `${pipePosition}px`;
+
+                    mario.style.animation = 'none';
+                    mario.style.bottom = `${marioPosition}px`;
+
+                    mario.src = 'https://www.pngkit.com/png/full/13-131651_super-mario-bros-game-over-super-mario-bros.png';
+                    mario.style.width = '75px';
+                    mario.style.marginLeft = '50px';
+                    
+                    isGameOver = true;
+                    clearInterval(loop);
+                }
+            }, 10);
+
+            document.addEventListener('keydown', jump);
+            document.addEventListener('touchstart', jump);
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(this.getAttribute('href'));
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
